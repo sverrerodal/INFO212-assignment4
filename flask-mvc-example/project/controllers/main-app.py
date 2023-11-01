@@ -3,6 +3,8 @@ from flask import render_template, request, redirect, url_for
 from project.models.Car import *
 from project.models.Customer import *
 from project.models.Employee import *
+from project.models.Order import *
+
 import json
 
 # # # # # # # # # #
@@ -112,42 +114,47 @@ def update_employee_info():
 # Order starts here #
 # # # # # # # # # # #
 
-@app.route('/order-car', methods=['PUT'])
-def order_car_info(customer_name, car_reg_nr):
+@app.route('/order_car', methods=['PUT'])
+def order_car_info():
     record = json.loads(request.data)
     print(record)
-    order_car(record['customer_name'], record['car_reg_nr'])
-    return
+    if order_car(record['name'], record['reg']):            # {"name":"Sverre", "reg":"EK12345"}
+        set_car_status(record['reg'], "booked")
+    return findCustomerByName(record['name'])
 
     # check if customer has booked another car
     # change car status to "booked"
     
 @app.route('/cancel_car_order', methods=['PUT'])
-def cancel_car_order_info(customer_name, car_reg_nr):
+def cancel_car_order_info():
     record = json.loads(request.data)
     print(record)
-    cancel_car_order(record['customer_name'], record['car_reg_nr'])
-    return
+    if cancel_car_order(record['name'], record['reg']):     # {"name":"Sverre", "reg":"EK12345"}
+        set_car_status(record['booking'], "available")
+    return findCustomerByName(record['name'])
 
     # check customer has booked the car (reg nr)
     # if they have -> set car status to "available"
     
 @app.route('/rent_car', methods=['PUT'])
-def rent_car_info(customer_name, car_reg_nr):
+def rent_car_info():
     record = json.loads(request.data)
     print(record)
-    rent_car(record['customer_name'], record['car_reg_nr'])
+    if rent_car(record['name'], record['booking']):
+        set_car_status(record['reg'], "rented")             # {"name":"Sverre", "booking":"EK12345"}
     return
 
     # Check customer for booking of the specific car
     # change car status to "rented"
     
 @app.route('/return_car', methods=['PUT'])
-def return_car_info(customer_name, car_reg_nr, car_status):
+def return_car_info():
     record = json.loads(request.data)
     print(record)
-    return_car(record['customer_name'], record['car_reg_nr'], record['car_status'])
+    if return_car(record['name'], record['booking']) and find_car_by_reg_number(record['booking']).get("status") == "rented":
+        set_car_status(record['booking'], record['status']) 
     return
-
+                                                            # {"name":"Sverre", "booking":"EK12345", "status":"damaged"}
+    
     # check if customer has rented the car
     # car status set to "available" or "damaged"
