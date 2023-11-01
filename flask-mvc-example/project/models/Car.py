@@ -31,15 +31,15 @@ def findCarByReg(reg):
         return nodes_json
     
 
-def save_car(make, model, reg, year, capacity):
-    cars = _get_connection().execute_query("MERGE (a:Car{make: $make, model: $model, reg: $reg, year: $year, capacity:$capacity}) RETURN a;", make = make, model = model, reg = reg, year = year, capacity = capacity)
+def save_car(make, model, reg, year, capacity, location, status):
+    cars = _get_connection().execute_query("MERGE (a:Car{make: $make, model: $model, reg: $reg, year: $year, capacity:$capacity, location:$location, status:$status}) RETURN a;", make = make, model = model, reg = reg, year = year, capacity = capacity, location = location, status = status)
     nodes_json = [node_to_json(record["a"]) for record in cars] 
     print(nodes_json)
     return nodes_json
 
-def update_car(make, model, reg, year, capacity): 
+def update_car(make, model, reg, year, capacity, location, status): 
     with _get_connection().session() as session:
-        cars = session.run("MATCH (a:Car{reg:$reg}) set a.make=$make, a.model=$model, a.year = $year, a.capacity = $capacity RETURN a;", reg=reg, make=make, model=model, year=year, capacity=capacity)
+        cars = session.run("MATCH (a:Car{reg:$reg}) set a.make=$make, a.model=$model, a.year = $year, a.capacity = $capacity, a.location = $location, a.status = $status RETURN a;", reg=reg, make=make, model=model, year=year, capacity=capacity, location=location, status=status)
         print(cars)
         nodes_json = [node_to_json(record["a"]) for record in cars] 
         print(nodes_json)
