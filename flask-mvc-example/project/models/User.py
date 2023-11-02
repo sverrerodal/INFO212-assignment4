@@ -1,8 +1,8 @@
 from neo4j import GraphDatabase, Driver, AsyncGraphDatabase, AsyncDriver
 import re
 
-URI = "neo4j+s://8aaceb6d.databases.neo4j.io"
-AUTH = ("neo4j", "yWZQROLZYZIZpXHZnWeIO_c_1FHnB0ZGIrJYMci5MxM")
+URI = 'neo4j+s://8aaceb6d.databases.neo4j.io'
+AUTH = ('neo4j', 'yWZQROLZYZIZpXHZnWeIO_c_1FHnB0ZGIrJYMci5MxM')
 
 
 def _get_connection() -> Driver:
@@ -12,12 +12,12 @@ def _get_connection() -> Driver:
     return driver
 
 def findUserByUsername(username):
-    data = _get_connection().execute_query("MATCH (a:User) where a.username = $username RETURN a;", username=username)
+    data = _get_connection().execute_query('MATCH (a:User) where a.username = $username RETURN a;', username=username)
     if len(data[0]) > 0:
         user = User(username, data[0][0][0]['email'])
         return user
     else:
-        return User(username, "Not found in DB")
+        return User(username, 'Not found in DB')
 
 class User:
     def __init__(self, username, email):
