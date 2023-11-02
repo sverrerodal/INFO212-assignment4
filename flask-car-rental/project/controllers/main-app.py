@@ -11,6 +11,9 @@ import json
 # Car starts here #
 # # # # # # # # # # 
 
+    # Mye av koden her er kopiert fra forelesningsnotatene, med noen endringer der programmet ikke kjørte ordentlig. 
+    # Customer og Employee bruker opp igjen samme kode som i Car ettersom de trenger de samme funksjonene, bare tilpasset seg selv
+
 @app.route('/get_cars', methods=['GET'])
 def find_cars():
     return findAllCars()
@@ -114,6 +117,16 @@ def update_employee_info():
 # Order starts here #
 # # # # # # # # # # #
 
+    # Her legges først customer og car inn i hver sin variabel for å gjøre det enklere å hente ut de forskjellige verdiene
+    # Kjøres så en if-sjekk for å se om customer allerede har en booking, dersom booking-keyen i customer er en tom streng kan programmet kjøres videre.
+    # check_customer_bookings() ligger i Order.py modellen
+    # Car oppdateres med å bruke update_car fra tidligere i oppgaven, og fyller ut det meste med dataen som allerede låg der, utenom "status" som oppdateres
+    # videre i oppgaven basert på hvilken type kommando som kjøres.
+    #
+    # check_customer_bookings() har en egen input "type" som gjør at samme funksjonen kan brukes opp igjen selv om de forskjellige 
+    # oppgavene trenger en litt annen sjekk.
+    #
+
 @app.route('/order_car', methods=['PUT'])
 def order_car_info():
     record = json.loads(request.data)
@@ -127,6 +140,8 @@ def order_car_info():
 
     # check if customer has booked another car
     # change car status to 'booked'
+    
+    
     
 @app.route('/cancel_car_order', methods=['PUT'])
 def cancel_car_order_info():
@@ -154,7 +169,7 @@ def rent_car_info():
 
     # Check customer for booking of the specific car
     # change car status to 'rented'
-    
+
 @app.route('/return_car', methods=['PUT'])
 def return_car_info():
     record = json.loads(request.data)
@@ -166,7 +181,8 @@ def return_car_info():
         update_customer(customer['name'], customer['age'], customer['address'], "")
     return findCarByReg(record['reg'])
     
-    # {'name':'Sverre', 'booking':'EK12345', 'status':'DAMAGED'}
+    # {'name':'Sverre', 'booking':'EK12345', 'status':'DAMAGED'} 
+    #                                              (eller 'AVAILABLE')
     
     # check if customer has rented the car
-    # car status set to 'available' or 'damaged'
+    # car status set to 'AVAILABLE' or 'DAMAGED'

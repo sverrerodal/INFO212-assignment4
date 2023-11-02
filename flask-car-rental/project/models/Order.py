@@ -29,36 +29,3 @@ def check_customers_bookings(type, customer, car):
         return False
     print("-- ERROR IN CHECK_CUSTOMER_BOOKINGS - NO TYPE FOUND --")
     return False
-
-def cancel_car_order(name, booking):
-    with _get_connection().session() as session:
-        customers = session.run('MATCH (a:Customer) where a.name=$name, a.booking=$booking RETURN a;', name=name, booking=booking) 
-        print(customers)
-        nodes_json = [node_to_json(record['a']) for record in customers]
-        if nodes_json == []:
-            print('Booking not found')
-            return False
-        else:
-            return True
-
-def rent_car(name, booking):
-    with _get_connection().session() as session:
-        customers = session.run('MATCH (a:Customer) where a.name=$name, a.booking=$booking RETURN a;', name=name, booking=booking) 
-        print(customers)
-        nodes_json = [node_to_json(record['a']) for record in customers]
-        if nodes_json == []:
-            print('Booking not found')
-            return False
-        else:
-            return True
-
-def return_car(name, booking):
-    with _get_connection().session() as session:
-        customers = session.run('MATCH (a:Customer) where a.name=$name, a.booking=$booking RETURN a;', name=name, booking=booking) 
-        print(customers)
-        nodes_json = [node_to_json(record['a']) for record in customers]
-        if nodes_json == []:
-            print('Booking not found')
-            return False
-        else:
-            return True
