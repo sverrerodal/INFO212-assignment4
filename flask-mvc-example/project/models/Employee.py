@@ -31,12 +31,20 @@ def findEmployeeByName(name):
         nodes_json = [node_to_json(record['a']) for record in employees]
         print(nodes_json)
         return nodes_json
-    
 
 def save_employee(name, address, branch):
-    #name, address, branch
     employees = _get_connection().execute_query('MERGE (a:Employee{name: $name, address: $address, branch: $branch}) RETURN a;', name = name, address = address, branch = branch)
-    nodes_json = [node_to_json(record['a']) for record in employees] 
+
+    nodes_json = []
+    for record in employees:
+        print("Current record:", record)
+        if isinstance(record, list) and isinstance(record[0], dict) and "a" in record[0]:
+            node = record[0]["a"]
+            print("Extracted node:", node)
+            json_data = node_to_json(node)
+            nodes_json.append(json_data)
+
+    print(employees)
     print(nodes_json)
     return nodes_json
 

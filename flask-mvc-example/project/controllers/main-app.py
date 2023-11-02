@@ -15,7 +15,7 @@ import json
 def find_cars():
     return findAllCars()
 
-@app.route('/get_cars_by_reg_number', methods=['POST'])
+@app.route('/get_car_by_reg_number', methods=['POST'])
 def find_car_by_reg_number():
     record = json.loads(request.data) 
     print(record)
@@ -50,7 +50,7 @@ def update_car_info():
 def find_customers():
     return findAllCustomers()
 
-@app.route('/get_customers_by_name', methods=['POST'])
+@app.route('/get_customer_by_name', methods=['POST'])
 def find_customer_by_name():
     record = json.loads(request.data) 
     print(record)
@@ -67,7 +67,7 @@ def save_customer_info():
 def delete_customer_info():
     record = json.loads(request.data)
     print(record)
-    delete_customer(record['reg'])
+    delete_customer(record['name'])
     return findAllCustomers()
 
 @app.route('/update_customer', methods=['PUT'])
@@ -84,7 +84,7 @@ def update_customer_info():
 def find_employees():
     return findAllEmployees()
 
-@app.route('/get_employees_by_name', methods=['POST'])
+@app.route('/get_employee_by_name', methods=['POST'])
 def find_employee_by_name():
     record = json.loads(request.data) 
     print(record)
@@ -118,9 +118,12 @@ def update_employee_info():
 def order_car_info():
     record = json.loads(request.data)
     print(record)
-    if order_car(record['name'], record['reg']):            # {'name':'Sverre', 'reg':'EK12345'}
-        set_car_status(record['reg'], 'booked')
-    return findCustomerByName(record['name'])
+    customer = findCustomerByName(record['name'])[0]
+    car = findCarByReg(record['reg'])[0]
+    if check_customers_bookings("ORDER_CAR", customer, None):
+        update_car(car['make'], car['model'], car['reg'], car['year'], car['capacity'], car['location'], 'BOOKED')
+        update_customer(customer['name'], customer['age'], customer['address'], record['reg'])
+    return findCarByReg(record['reg'])
 
     # check if customer has booked another car
     # change car status to 'booked'
@@ -129,9 +132,12 @@ def order_car_info():
 def cancel_car_order_info():
     record = json.loads(request.data)
     print(record)
-    if cancel_car_order(record['name'], record['reg']):     # {'name':'Sverre', 'reg':'EK12345'}
-        set_car_status(record['booking'], 'available')
-    return findCustomerByName(record['name'])
+    customer = findCustomerByName(record['name'])[0]
+    car = findCarByReg(record['reg'])[0]
+    if check_customers_bookings("CANCEL_OR_RENT", customer, car):
+        update_car(car['make'], car['model'], car['reg'], car['year'], car['capacity'], car['location'], 'AVAILABLE')
+        update_customer(customer['name'], customer['age'], customer['address'], "")
+    return findCarByReg(record['reg'])
 
     # check customer has booked the car (reg nr)
     # if they have -> set car status to 'available'
@@ -140,9 +146,12 @@ def cancel_car_order_info():
 def rent_car_info():
     record = json.loads(request.data)
     print(record)
-    if rent_car(record['name'], record['booking']):
-        set_car_status(record['reg'], 'rented')             # {'name':'Sverre', 'booking':'EK12345'}
-    return
+    customer = findCustomerByName(record['name'])[0]
+    car = findCarByReg(record['reg'])[0]
+    if check_customers_bookings("CANCEL_OR_RENT", customer, car):
+        update_car(car['make'], car['model'], car['reg'], car['year'], car['capacity'], car['location'], 'RENTED')
+        update_customer(customer['name'], customer['age'], customer['address'], "")
+    return findCarByReg(record['reg'])
 
     # Check customer for booking of the specific car
     # change car status to 'rented'
@@ -151,10 +160,13 @@ def rent_car_info():
 def return_car_info():
     record = json.loads(request.data)
     print(record)
-    if return_car(record['name'], record['booking']) and find_car_by_reg_number(record['booking']).get('status') == 'rented':
-        set_car_status(record['booking'], record['status']) 
-    return
-                                                            # {'name':'Sverre', 'booking':'EK12345', 'status':'damaged'}
+    customer = findCustomerByName(record['name'])[0]
+    car = findCarByReg(record['reg'])[0]
+    if check_customers_bookings("CANCEL_OR_RENT", customer, car):
+        update_car(car['make'], car['model'], car['reg'], car['year'], car['capacity'], car['location'], record['status'])
+        update_customer(customer['name'], customer['age'], customer['address'], "")
+    return findCarByReg(record['reg'])
+                                                            # {'name':'Sverre', 'booking':'EK12345', 'status':'DAMAGED'}
     
     # check if customer has rented the car
     # car status set to 'available' or 'damaged'

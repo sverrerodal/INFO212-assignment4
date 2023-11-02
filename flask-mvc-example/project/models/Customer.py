@@ -31,10 +31,19 @@ def findCustomerByName(name):
         print(nodes_json)
         return nodes_json
     
-
 def save_customer(name, age, address, booking):
-    customers = _get_connection().execute_query('MERGE (a:Customer{name:$name, age:$age, address:$address, booking:$booking}) RETURN a;', name = name, age = age, address = address, booking = booking)
-    nodes_json = [node_to_json(record['a']) for record in customers] 
+    customers = _get_connection().execute_query("MERGE (a:Customer{name: $name, age: $age, address: $address, booking: $booking}) RETURN a;", name = name, age = age, address = address, booking = booking)
+
+    nodes_json = []
+    for record in customers:
+        print("Current record:", record)
+        if isinstance(record, list) and isinstance(record[0], dict) and "a" in record[0]:
+            node = record[0]["a"]
+            print("Extracted node:", node)
+            json_data = node_to_json(node)
+            nodes_json.append(json_data)
+
+    print(customers)
     print(nodes_json)
     return nodes_json
 
@@ -48,3 +57,4 @@ def update_customer(name, age, address, booking):
 
 def delete_customer(name):
     _get_connection().execute_query('MATCH (a:Customer{name: $name}) delete a;', name = name)
+    
